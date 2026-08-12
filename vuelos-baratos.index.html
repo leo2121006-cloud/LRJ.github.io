@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vuelos más baratos desde Miami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board: #14110D;
+    --board-2: #1C1812;
+    --amber: #F2A93B;
+    --amber-dim: #B87F27;
+    --cream: #F4EFE4;
+    --text-dim: rgba(244,239,228,0.6);
+    --line: rgba(244,239,228,0.14);
+    --teal: #4F9A8C;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    background: var(--board);
+    color: var(--cream);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,h2,h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .mono{ font-family:'Space Mono', monospace; }
+
+  .wrap{ max-width: 1040px; margin:0 auto; padding: 0 32px; }
+
+  a{ color: inherit; }
+  a:focus-visible, button:focus-visible{ outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* ---------- header ---------- */
+  header.site{ padding: 22px 0; border-bottom: 1px solid var(--line); }
+  header.site .wrap{ display:flex; justify-content: space-between; align-items:center; }
+  .brand{ font-weight:700; font-size: 1.05rem; }
+  .brand span{ color: var(--amber); }
+  .origin-tag{
+    font-family:'Space Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{ padding: 80px 0 20px; }
+  .hero h1{ font-size: clamp(2rem, 4.6vw, 3.1rem); max-width: 18ch; }
+  .hero h1 .accent{ color: var(--amber); }
+  .hero p.lead{ max-width: 56ch; margin-top: 20px; color: var(--text-dim); font-size: 1rem; }
+
+  .note-box{
+    margin-top: 28px;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 0.86rem;
+    color: var(--text-dim);
+    max-width: 640px;
+  }
+  .note-box strong{ color: var(--amber); }
+
+  /* ---------- board ---------- */
+  section{ padding: 64px 0; }
+  .section-head{ margin-bottom: 34px; }
+  .section-tag{
+    font-family:'Space Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--amber);
+    display:block;
+    margin-bottom: 8px;
+  }
+  .section-head h2{ font-size: clamp(1.5rem, 3vw, 2rem); }
+
+  .board{
+    background: var(--board-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .board-header-row{
+    display:grid;
+    grid-template-columns: 1.4fr 1.6fr 1fr 1fr;
+    padding: 14px 24px;
+    font-family:'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--line);
+    letter-spacing: 0.04em;
+  }
+
+  .board-row{
+    display:grid;
+    grid-template-columns: 1.4fr 1.6fr 1fr 1fr;
+    align-items:center;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--line);
+    font-family:'Space Mono', monospace;
+    opacity: 0;
+    animation: flip-in 0.5s ease forwards;
+  }
+  .board-row:last-child{ border-bottom:none; }
+  .board-row:nth-child(2){ animation-delay: 0.1s; }
+  .board-row:nth-child(3){ animation-delay: 0.25s; }
+  .board-row:nth-child(4){ animation-delay: 0.4s; }
+
+  @keyframes flip-in{
+    from{ opacity:0; transform: translateY(-6px); }
+    to{ opacity:1; transform:none; }
+  }
+
+  .board-row .route{ font-size: 0.98rem; color: var(--cream); }
+  .board-row .route small{ display:block; color: var(--text-dim); font-size: 0.72rem; margin-top: 3px; }
+  .board-row .airline{ font-size: 0.82rem; color: var(--text-dim); }
+  .board-row .price{ font-size: 1.15rem; color: var(--amber); font-weight:700; }
+  .board-row .status{
+    font-size: 0.7rem;
+    color: var(--teal);
+    justify-self: start;
+    border: 1px solid rgba(79,154,140,0.4);
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  a.status:hover{ border-color: var(--teal); background: rgba(79,154,140,0.12); }
+
+  @media (max-width: 720px){
+    .board-header-row{ display:none; }
+    .board-row{ grid-template-columns: 1fr; gap: 6px; }
+    .board-row .price{ font-size: 1.3rem; }
+  }
+
+  /* ---------- tips (light section) ---------- */
+  .tips{ background: var(--cream); color: var(--board); }
+  .tips .section-tag{ color: var(--amber-dim); }
+  .tips .section-head p{ color: rgba(20,17,13,0.65); max-width: 52ch; margin-top:10px; }
+
+  .tip-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(20,17,13,0.12);
+    border: 1px solid rgba(20,17,13,0.12);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  @media (max-width: 780px){ .tip-grid{ grid-template-columns: 1fr; } }
+
+  .tip-card{ background: var(--cream); padding: 26px 24px; }
+  .tip-card .num{ font-family:'Space Mono', monospace; color: var(--amber-dim); font-size: 0.78rem; }
+  .tip-card h3{ font-size: 1rem; margin: 10px 0 8px; color: var(--board); }
+  .tip-card p{ font-size: 0.88rem; color: rgba(20,17,13,0.7); }
+
+  /* ---------- live search cta ---------- */
+  .live-cta{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: var(--board-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 30px 32px;
+  }
+  .live-cta p{ color: var(--text-dim); font-size: 0.92rem; max-width: 42ch; }
+  .live-cta .links{ display:flex; gap: 12px; flex-wrap: wrap; }
+  .btn{
+    display:inline-block;
+    padding: 11px 22px;
+    border-radius: 100px;
+    text-decoration:none;
+    font-size: 0.86rem;
+    border: 1px solid var(--line);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn:hover{ border-color: var(--amber); color: var(--amber); }
+
+  /* ---------- footer ---------- */
+  footer{ border-top: 1px solid var(--line); padding: 30px 0; }
+  footer .wrap{
+    display:flex; justify-content: space-between; flex-wrap:wrap; gap: 10px;
+    font-family:'Space Mono', monospace; font-size: 0.72rem; color: var(--text-dim);
+  }
+
+  .reveal{ opacity:0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.is-visible{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand">Tablero de <span>salidas</span></div>
+    <div class="origin-tag mono">ORIGEN · MIA — MIAMI</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Las tarifas más bajas que encontré <span class="accent">saliendo de Miami.</span></h1>
+    <p class="lead">Asumí Miami como tu punto de partida porque es tu ubicación aproximada. Si vuelas desde otra ciudad, dime cuál y rehago el tablero.</p>
+    <div class="note-box">
+      <strong>Importante:</strong> estos precios los encontré en comparadores de vuelos (Skyscanner) en búsquedas recientes — no son una reserva en vivo ni un precio garantizado. Los vuelos cambian de precio constantemente según fecha, disponibilidad y anticipación de compra. Antes de comprar, verifica el precio actual en el buscador.
+    </div>
+  </div>
+</section>
+
+<section id="tablero">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">ENCONTRADOS RECIENTEMENTE</span>
+      <h2>Tarifas más bajas desde MIA</h2>
+    </div>
+
+    <div class="board reveal">
+      <div class="board-header-row">
+        <span>RUTA</span>
+        <span>AEROLÍNEA</span>
+        <span>DESDE</span>
+        <span>ESTADO</span>
+      </div>
+      <div class="board-row">
+        <div class="route">MIA → ATL <small>Atlanta, Georgia</small></div>
+        <div class="airline">Varias aerolíneas</div>
+        <div class="price">$55</div>
+        <a class="status" href="https://www.skyscanner.com/transport/flights/miaa/atla/" target="_blank" rel="noopener">VER TARIFA ↗</a>
+      </div>
+      <div class="board-row">
+        <div class="route">MIA → SJU <small>San Juan, Puerto Rico</small></div>
+        <div class="airline">Varias aerolíneas</div>
+        <div class="price">$78</div>
+        <a class="status" href="https://www.skyscanner.com/transport/flights/miaa/sjuu/" target="_blank" rel="noopener">VER TARIFA ↗</a>
+      </div>
+      <div class="board-row">
+        <div class="route">MIA → MID <small>Mérida, México</small></div>
+        <div class="airline">Varias aerolíneas</div>
+        <div class="price">$189</div>
+        <a class="status" href="https://www.skyscanner.com/transport/flights/miaa/mida/" target="_blank" rel="noopener">VER TARIFA ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tips" id="consejos">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">CÓMO SE ENCONTRARON</span>
+      <h2>Patrones reales de precio para MIA</h2>
+      <p>Según los mismos comparadores: cuándo comprar y cuándo volar cambia el precio más que el destino.</p>
+    </div>
+
+    <div class="tip-grid reveal">
+      <div class="tip-card">
+        <span class="num mono">01</span>
+        <h3>Compra ~30-40 días antes</h3>
+        <p>Es la ventana donde los comparadores encuentran las tarifas más bajas para vuelos desde Miami.</p>
+      </div>
+      <div class="tip-card">
+        <span class="num mono">02</span>
+        <h3>Sábado es el día más barato</h3>
+        <p>Volar en sábado suele costar menos que el resto de la semana; el martes tiende a ser el más caro.</p>
+      </div>
+      <div class="tip-card">
+        <span class="num mono">03</span>
+        <h3>Boletos sencillos por separado</h3>
+        <p>A veces comprar dos boletos de ida sale más barato que un vuelo redondo con la misma aerolínea.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="buscar-en-vivo">
+  <div class="wrap">
+    <div class="live-cta reveal">
+      <p>Para el precio exacto de hoy, con tus fechas, busca en vivo — los comparadores actualizan cada pocos minutos.</p>
+      <div class="links">
+        <a class="btn" href="https://www.skyscanner.com/us/es-mx/usd/vuelos-desde/miaa/vuelos-baratos-de-miami.html" target="_blank" rel="noopener">Skyscanner ↗</a>
+        <a class="btn" href="https://www.google.com/travel/flights?f=0&t=0&q=Flights%20from%20Miami" target="_blank" rel="noopener">Google Flights ↗</a>
+        <a class="btn" href="https://www.kayak.com/flights/MIA" target="_blank" rel="noopener">Kayak ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Precios de referencia: Skyscanner, búsquedas de agosto 2026 — sujetos a cambio</span>
+    <span>Verifica siempre el precio en vivo antes de comprar</span>
+  </div>
+</footer>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
